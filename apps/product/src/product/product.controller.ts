@@ -2,7 +2,7 @@ import { Controller, Post, UseInterceptors, UsePipes, ValidationPipe } from '@ne
 import { ProductService } from './product.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { GetProductsInfo } from './dto/get-product-info.dto';
-import { RpcInterceptor } from 'libs/common/interceptor/rpc.interceptor';
+import { RpcInterceptor } from '@app/common/interceptor/rpc.interceptor';
 
 @Controller('product')
 export class ProductController {

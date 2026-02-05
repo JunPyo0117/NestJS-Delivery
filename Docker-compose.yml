@@ -96,11 +96,11 @@ services:
       - ./mongo/order:/data/db
     command: mongod --quiet --logpath /dev/null
     healthcheck:
-      test: echo 'db.adminCommand('ping').ok' | mongosh localhost:27017/test --quiet
+      test: ["CMD-SHELL", "mongosh 'mongodb://mongo:mongo@localhost:27017/admin' --eval 'quit(db.runCommand({ping:1}).ok ? 0 : 2)'"]
       interval: 5s
-      timeout: 5s
+      timeout: 10s
       retries: 10
-      start_period: 5s
+      start_period: 15s
 
   payment:
     build:
@@ -163,8 +163,8 @@ services:
       - ./mongo/notification:/data/db
     command: mongod --quiet --logpath /dev/null
     healthcheck:
-      test: echo 'db.adminCommand('ping').ok' | mongosh localhost:27017/test --quiet
+      test: ["CMD-SHELL", "mongosh 'mongodb://mongo:mongo@localhost:27017/admin' --eval 'quit(db.runCommand({ping:1}).ok ? 0 : 2)'"]
       interval: 5s
-      timeout: 5s
+      timeout: 10s
       retries: 10
-      start_period: 5s
+      start_period: 15s

@@ -63,7 +63,6 @@ export class OrderService {
 
     // 8. 결과 반환하기
     return this.orderModel.findById(order._id);
-
   }
 
   private async getUserFromToken(token: string) {
@@ -138,13 +137,16 @@ export class OrderService {
     });
   }
 
-  private async processPayment(orderId: string, payment: PaymentDto, userEmail: string) {
-
+  private async processPayment(
+    orderId: string,
+    payment: PaymentDto,
+    userEmail: string,
+  ) {
     try {
       const resp = await lastValueFrom<PaymentResponse>(
         this.paymentService.send(
           { cmd: 'make_payment' },
-          { ...payment, userEmail },
+          { ...payment, userEmail, orderId },
         ),
       );
 
@@ -161,21 +163,31 @@ export class OrderService {
         throw new PaymentFailedException(resp.error);
       }
 
-      await this.orderModel.findByIdAndUpdate(orderId, { status: OrderStatus.paymentProcessed });
+      await this.orderModel.findByIdAndUpdate(orderId, {
+        status: OrderStatus.paymentProcessed,
+      });
 
       return resp;
     } catch (e) {
       if (e instanceof PaymentFailedException) {
-        await this.orderModel.findByIdAndUpdate(orderId, { status: OrderStatus.paymentFailed });
+        await this.orderModel.findByIdAndUpdate(orderId, {
+          status: OrderStatus.paymentFailed,
+        });
         throw e;
       }
 
-      await this.orderModel.findByIdAndUpdate(orderId, { status: OrderStatus.paymentProcessed });
+      await this.orderModel.findByIdAndUpdate(orderId, {
+        status: OrderStatus.paymentProcessed,
+      });
       return {
         orderId,
         orderStatus: OrderStatus.paymentProcessed,
       };
       throw e;
     }
+  }
+
+  async changeOrderStatus(orderId: string, status: OrderStatus) {
+    return await this.orderModel.findByIdAndUpdate(orderId, { status });
   }
 }

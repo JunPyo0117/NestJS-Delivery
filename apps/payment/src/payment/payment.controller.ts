@@ -1,7 +1,7 @@
 import { Controller, Get, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { RpcInterceptor } from 'libs/common/interceptor/rpc.interceptor';
+import { RpcInterceptor } from '@app/common/interceptor/rpc.interceptor';
 import { MakePaymentDto } from './dto/make-payment.dto';
 
 @Controller()
