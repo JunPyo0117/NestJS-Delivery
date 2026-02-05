@@ -1,4 +1,10 @@
-import { Controller, Post, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseInterceptors,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ProductService } from './product.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { GetProductsInfo } from './dto/get-product-info.dto';
@@ -8,8 +14,10 @@ import { RpcInterceptor } from '@app/common/interceptor/rpc.interceptor';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @Post('sample')
-  async createSamples() {
+  @MessagePattern({ cmd: 'create_samples' })
+  @UsePipes(ValidationPipe)
+  @UseInterceptors(RpcInterceptor)
+  async createSamplesMessage() {
     return this.productService.createSamples();
   }
 

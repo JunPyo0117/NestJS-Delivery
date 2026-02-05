@@ -10,7 +10,7 @@ export enum PaymentMethod {
   creditCard = 'CreditCard',
   kakaopay = 'Kakaopay',
 }
-
+ 
 export enum NotificationStatus {
   pending = 'Pending',
   sent = 'Sent',

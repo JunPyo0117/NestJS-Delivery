@@ -33,10 +33,10 @@ export class OrderService {
     private readonly orderModel: Model<Order>,
   ) {}
 
-  async createOrder(createOrderDto: CreateOrderDto, token: string) {
-    const { productIds, address, payment } = createOrderDto;
+  async createOrder(createOrderDto: CreateOrderDto) {
+    const { productIds, address, payment, meta } = createOrderDto;
     // 1. 사용자 정보 가져오기
-    const user = await this.getUserFromToken(token);
+    const user = await this.getUserFromToken(meta.user.sub);
     console.log('-------------------');
     console.log(user);
 
@@ -65,18 +65,18 @@ export class OrderService {
     return this.orderModel.findById(order._id);
   }
 
-  private async getUserFromToken(token: string) {
+  private async getUserFromToken(userId: string) {
     // 1. User MS: JWT 토큰 검증
-    const tResp = await lastValueFrom(
-      this.userService.send({ cmd: 'parse_bearer_token' }, { token }),
-    );
+    // const tResp = await lastValueFrom(
+    //   this.userService.send({ cmd: 'parse_bearer_token' }, { token }),
+    // );
 
-    if (tResp.status === 'error') {
-      throw new PaymentCanclledException(tResp);
-    }
+    // if (tResp.status === 'error') {
+    //   throw new PaymentCanclledException(tResp);
+    // }
 
-    // 2. User MS: 사용자 정보 가져오기
-    const userId = tResp.data.sub;
+    // // 2. User MS: 사용자 정보 가져오기
+    // const userId = tResp.data.sub;
     const uResp = await lastValueFrom(
       this.userService.send({ cmd: 'get_user_info' }, { userId }),
     );
