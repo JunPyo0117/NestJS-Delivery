@@ -4,10 +4,10 @@ import { AddressDto } from './address.dto';
 import { PaymentDto } from './payment.dto';
 
 export class CreateOrderDto {
-  @IsNotEmpty()
-  @IsArray({ each: true })
+  @IsNotEmpty({ each: true })
+  @IsArray()
   @IsString({ each: true })
-  productId: string;
+  productIds: string[];
 
   @ValidateNested()
   @Type(() => AddressDto)

@@ -22,6 +22,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       }),
       inject: [ConfigService],
     }),
+    PaymentModule,
   ],
 })
 export class AppModule {}

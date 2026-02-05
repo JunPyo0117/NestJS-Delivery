@@ -1,7 +1,7 @@
-import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
-import { PaymentMethod } from '../entity/payment.entity';
+import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { PaymentMethod } from "../entity/payment.entity";
 
-export class PaymentDto {
+export class MakePaymentDto {
   @IsString()
   @IsNotEmpty()
   paymentMethod: PaymentMethod;
@@ -10,13 +10,8 @@ export class PaymentDto {
   @IsNotEmpty()
   paymentName: string;
 
-  @IsNumber()
-  @Min(0)
   @IsNotEmpty()
-  amount: number;
-
   @IsString()
-  @IsNotEmpty()
   cardNumber: string;
 
   @IsString()
@@ -26,12 +21,16 @@ export class PaymentDto {
   @IsString()
   @IsNotEmpty()
   expiryMonth: string;
-
+  
   @IsString()
   @IsNotEmpty()
   birthOrRegistration: string;
 
+  @IsNumber()
+  @IsNotEmpty()
+  amount: number;
+
   @IsString()
   @IsNotEmpty()
-  passwordTwoDigits: string;
-}
+  userEmail: string;
+}   
