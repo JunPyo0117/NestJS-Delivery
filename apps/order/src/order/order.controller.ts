@@ -10,36 +10,36 @@ import { OrderService } from './order.service';
 import { Authorization } from 'apps/gateway/src/auth/decorator/authorization.decorator';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
-import { RpcInterceptor } from '@app/common';
+import { OrderMicroservice, RpcInterceptor } from '@app/common';
 import { DeliveryStartedDto } from '../dto/delivery-started.dto';
 import { OrderStatus } from '../entity/order.entity';
+import { PaymentMethod } from '../entity/payment.entity';
 
 @Controller('order')
-export class OrderController {
+export class OrderController
+  implements OrderMicroservice.OrderServiceController
+{
   constructor(private readonly orderService: OrderService) {}
 
-  // @Post()
-  // @UsePipes(ValidationPipe)
-  // async createOrder(
-  //   @Authorization() token: string,
-  //   @Body() createOrderDto: CreateOrderDto,
-  // ) {
-  //   return await this.orderService.createOrder(createOrderDto, token);
-  // }
-
-  @EventPattern({ cmd: 'delivery_started' })
-  @UseInterceptors(RpcInterceptor)
-  async deliveryStarted(@Payload() payload: DeliveryStartedDto) {
+  // @EventPattern({ cmd: 'delivery_started' })
+  // @UseInterceptors(RpcInterceptor)
+  async deliveryStarted(request: OrderMicroservice.DeliveryStartedRequest) {
     return await this.orderService.changeOrderStatus(
-      payload.id,
+      request.id,
       OrderStatus.deliveryStarted,
     );
   }
 
-  @MessagePattern({ cmd: 'create_order' })
-  @UsePipes(ValidationPipe)
-  @UseInterceptors(RpcInterceptor)
-  async createOrderMessage(@Payload() createOrderDto: CreateOrderDto) {
-    return await this.orderService.createOrder(createOrderDto);
+  // @MessagePattern({ cmd: 'create_order' })
+  // @UsePipes(ValidationPipe)
+  // @UseInterceptors(RpcInterceptor)
+  async createOrderMessage(request: OrderMicroservice.CreateOrderRequest) {
+    return await this.orderService.createOrder({
+      ...request,
+      payment: {
+        ...request.payment,
+        paymentMethod: request.payment.paymentMethod as PaymentMethod,
+      },
+    });
   }
 }
