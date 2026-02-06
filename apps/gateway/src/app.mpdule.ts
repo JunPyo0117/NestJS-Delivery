@@ -3,7 +3,7 @@ import { OrderModule } from './order/order.module';
 import { AuthModule } from './auth/auth.module';
 import { ProductModule } from './product/product.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ORDER_SERVICE, PAYMENT_SERVICE, PRODUCT_SERVICE, USER_SERVICE } from '@app/common';
+import { ORDER_SERVICE, PRODUCT_SERVICE, USER_SERVICE } from '@app/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import Joi from 'joi';
 import { BearerTokenMiddleware } from './auth/middleware/bearer-token.middleware';
@@ -26,10 +26,13 @@ import { BearerTokenMiddleware } from './auth/middleware/bearer-token.middleware
         {
           name: USER_SERVICE,
           useFactory: (configService: ConfigService) => ({
-            transport: Transport.TCP,
+            transport: Transport.RMQ,
             options: {
-              host: configService.getOrThrow<string>('USER_HOST'),
-              port: configService.getOrThrow<number>('USER_TCP_PORT'),
+              urls: ['amqp://rabbitmq:5672'],
+              queue: 'user_queue',
+              queueOptions: {
+                durable: false,
+              },
             },
           }),
           inject: [ConfigService],
@@ -37,10 +40,13 @@ import { BearerTokenMiddleware } from './auth/middleware/bearer-token.middleware
         {
           name: PRODUCT_SERVICE,
           useFactory: (configService: ConfigService) => ({
-            transport: Transport.TCP,
+            transport: Transport.RMQ,
             options: {
-              host: configService.getOrThrow<string>('PRODUCT_HOST'),
-              port: configService.getOrThrow<number>('PRODUCT_TCP_PORT'),
+              urls: ['amqp://rabbitmq:5672'],
+              queue: 'product_queue',
+              queueOptions: {
+                durable: false,
+              },
             },
           }),
           inject: [ConfigService],
@@ -48,10 +54,13 @@ import { BearerTokenMiddleware } from './auth/middleware/bearer-token.middleware
         {
           name: ORDER_SERVICE,
           useFactory: (configService: ConfigService) => ({
-            transport: Transport.TCP,
+            transport: Transport.RMQ,
             options: {
-              host: configService.getOrThrow<string>('ORDER_HOST'),
-              port: configService.getOrThrow<number>('ORDER_TCP_PORT'),
+              urls: ['amqp://rabbitmq:5672'],
+              queue: 'order_queue',
+              queueOptions: {
+                durable: false,
+              },
             },
           }),
           inject: [ConfigService],
