@@ -1,0 +1,130 @@
+version: '3.8'
+
+services:
+  gateway:
+    image: vksehfkdydy/fc-nestjs-gateway:latest
+    env_file:
+      - ./apps/gateway/.env
+    ports:
+      - 3000:3000
+
+  user:
+    image: vksehfkdydy/fc-nestjs-user:latest
+    env_file:
+      - ./apps/user/.env
+    working_dir: /usr/src/app
+
+  postgres_user:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - 6001:5432
+    volumes:
+      - ./postgres/user:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  product:
+    image: vksehfkdydy/fc-nestjs-product:latest
+    depends_on:
+      postgres_product:
+        condition: service_healthy
+    env_file:
+      - ./apps/product/.env
+    
+  postgres_product:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - 6002:5432
+    volumes:
+      - ./postgres/product:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  order:
+      image: vksehfkdydy/fc-nestjs-order:latest
+      depends_on:
+        mongo_order:
+          condition: service_healthy
+      env_file:
+        - ./apps/order/.env
+        
+  mongo_order:
+    image: mongo:8
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+    ports:
+      - 6003:27017
+    volumes:
+      - ./mongo/order:/data/db
+    command: mongod --quiet --logpath /dev/null
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh 'mongodb://mongo:mongo@localhost:27017/admin' --eval 'quit(db.runCommand({ping:1}).ok ? 0 : 2)'"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 15s
+
+  payment:
+    image: vksehfkdydy/fc-nestjs-payment:latest
+    depends_on:
+      postgres_payment:
+        condition: service_healthy
+    env_file:
+      - ./apps/payment/.env
+    
+  postgres_payment:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - 6004:5432
+    volumes:
+      - ./postgres/payment:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  notification:
+    image: vksehfkdydy/fc-nestjs-notification:latest
+    depends_on:
+      mongo_notification:
+        condition: service_healthy
+    env_file:
+      - ./apps/notification/.env
+
+  mongo_notification:
+    image: mongo:8
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+    ports:
+      - 6005:27017
+    volumes:
+      - ./mongo/notification:/data/db
+    command: mongod --quiet --logpath /dev/null
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh 'mongodb://mongo:mongo@localhost:27017/admin' --eval 'quit(db.runCommand({ping:1}).ok ? 0 : 2)'"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 15s
