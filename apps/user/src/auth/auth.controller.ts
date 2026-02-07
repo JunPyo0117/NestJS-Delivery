@@ -14,9 +14,12 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ParseBearerTokenDto } from './dto/parse-bearer-token.dto';
 import { RpcInterceptor } from '@app/common/interceptor/rpc.interceptor';
 import { LoginDto } from './dto/login.dto';
-import { UserMicroservice } from '@app/common';
+import { GrpcInterceptor, UserMicroservice } from '@app/common';
+import { Metadata } from '@grpc/grpc-js';
 
 @Controller('auth')
+@UserMicroservice.AuthServiceControllerMethods()
+@UseInterceptors(GrpcInterceptor)
 export class AuthController implements UserMicroservice.AuthServiceController {
   constructor(private readonly authService: AuthService) {}
 
@@ -32,19 +35,25 @@ export class AuthController implements UserMicroservice.AuthServiceController {
   // @MessagePattern({
   //   cmd: 'register',
   // })
-  registerUser(request: UserMicroservice.RegisterUserRequest) {
+  async registerUser(
+    request: UserMicroservice.RegisterUserRequest,
+  ): Promise<UserMicroservice.RegisterUserResponse> {
     const { token } = request;
+
     if (!token) {
       throw new UnauthorizedException('토큰을 입력해주세요!');
     }
 
-    return this.authService.register(token, request);
+    return this.authService.register(
+      token,
+      request,
+    ) as Promise<UserMicroservice.RegisterUserResponse>;
   }
 
   // @MessagePattern({
   //   cmd: 'login',
   // })
-  loginUser(request: UserMicroservice.LoginUserRequest) {
+  loginUser(request: UserMicroservice.LoginUserRequest, metadata: Metadata) {
     const { token } = request;
     if (!token) {
       throw new UnauthorizedException('토큰을 입력해주세요!');

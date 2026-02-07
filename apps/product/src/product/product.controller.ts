@@ -9,9 +9,11 @@ import { ProductService } from './product.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { GetProductsInfo } from './dto/get-product-info.dto';
 import { RpcInterceptor } from '@app/common/interceptor/rpc.interceptor';
-import { ProductMicroservice } from '@app/common';
+import { GrpcInterceptor, ProductMicroservice } from '@app/common';
 
 @Controller('product')
+@ProductMicroservice.ProductServiceControllerMethods()
+@UseInterceptors(GrpcInterceptor)
 export class ProductController
   implements ProductMicroservice.ProductServiceController
 {
@@ -20,7 +22,7 @@ export class ProductController
   // @MessagePattern({ cmd: 'create_samples' })
   // @UsePipes(ValidationPipe)
   // @UseInterceptors(RpcInterceptor)
-  async createSamplesMessage() {
+  async createSamples() {
     const resp = await this.productService.createSamples();
     return { success: resp };
   }

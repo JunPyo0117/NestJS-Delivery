@@ -1,22 +1,41 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { SendPaymentNotificationDto } from './dto/send-payment-notification.dto';
 import { Repository } from 'typeorm';
 import { Notification, NotificationStatus } from './entity/notification.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ORDER_SERVICE } from '@app/common';
-import { ClientProxy } from '@nestjs/microservices';
+import {
+  ORDER_SERVICE,
+  OrderMicroservice,
+  constructorMetadata,
+} from '@app/common';
+import type { ClientGrpc } from '@nestjs/microservices';
+import { Metadata } from '@grpc/grpc-js';
 
 @Injectable()
-export class NotificationService {
+export class NotificationService implements OnModuleInit {
+  orderService: OrderMicroservice.OrderServiceClient;
+
   constructor(
     @InjectModel(Notification.name)
     private readonly notificationModel: Model<Notification>,
+    // @Inject(ORDER_SERVICE)
+    // private readonly orderService: ClientProxy,
     @Inject(ORDER_SERVICE)
-    private readonly orderService: ClientProxy,
+    private readonly orderMicroservice: ClientGrpc,
   ) {}
 
-  async sendPaymentNotification(data: SendPaymentNotificationDto) {
+  onModuleInit() {
+    this.orderService =
+      this.orderMicroservice.getService<OrderMicroservice.OrderServiceClient>(
+        'OrderService',
+      );
+  }
+
+  async sendPaymentNotification(
+    data: SendPaymentNotificationDto,
+    metadata: Metadata,
+  ) {
     const notification = await this.createNotification(data.to);
 
     await this.sendEmail();
@@ -25,15 +44,24 @@ export class NotificationService {
       notification._id.toString(),
       NotificationStatus.sent,
     );
-    
-    // Cold Observable vs Hot Observable
-    this.sendDeliveryStartedMessage(data.orderId);
 
-    return this.notificationModel.findById(notification._id);
+    // Cold Observable vs Hot Observable
+    this.sendDeliveryStartedMessage(data.orderId, metadata);
+
+    return this.notificationModel.findById(notification._id).lean();
   }
 
-  async sendDeliveryStartedMessage(id: string) {
-    this.orderService.emit({ cmd: 'delivery_started' }, { id });
+  sendDeliveryStartedMessage(id: string, metadata: Metadata) {
+    this.orderService
+      .deliveryStarted(
+        { id },
+        constructorMetadata(
+          NotificationService.name,
+          'sendDeliveryStartedMessage',
+          metadata,
+        ),
+      )
+      .subscribe();
   }
 
   async updateNotificationStatus(id: string, status: NotificationStatus) {
