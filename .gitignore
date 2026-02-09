@@ -70,3 +70,35 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 k8s/delivery/values.yaml
 build-and-push.sh
 install.sh
+
+# Terraform
+k8s/infra/terraform/terraform.tfstate
+k8s/infra/terraform/terraform.tfstate.backup
+k8s/infra/terraform/.terraform/
+k8s/infra/terraform/.terraform.lock.hcl
+k8s/infra/terraform/*.tfvars
+k8s/infra/terraform/terraform.tfvars
+
+# Kubernetes Secrets (템플릿이 아닌 실제 값이 들어간 파일)
+k8s/delivery/templates/*/secret.yaml
+k8s/delivery/templates/order/secret.yaml
+k8s/delivery/templates/notification/secret.yaml
+k8s/delivery/templates/norification/secret.yaml
+k8s/delivery/templates/payment/secret.yaml
+k8s/delivery/templates/user/secret.yaml
+k8s/delivery/templates/product/secret.yaml
+k8s/delivery/templates/gateway/secret.yaml
+
+# AWS credentials
+*.pem
+*.key
+*.crt
+aws-credentials.json
+
+# Tutorial/example 파일 중 실제 값이 들어간 것
+tutorial/kubernetes/5_config/secret.yml
+
+# Helm values 파일 (실제 운영 값)
+**/values.prod.yaml
+**/values.production.yaml
+helm/**/values.yaml
