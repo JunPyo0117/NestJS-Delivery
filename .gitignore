@@ -76,8 +76,10 @@ k8s/infra/terraform/terraform.tfstate
 k8s/infra/terraform/terraform.tfstate.backup
 k8s/infra/terraform/.terraform/
 k8s/infra/terraform/.terraform.lock.hcl
+k8s/infra/terraform/.terraform.tfstate.lock.info
 k8s/infra/terraform/*.tfvars
 k8s/infra/terraform/terraform.tfvars
+**/.terraform.tfstate.lock.info
 
 # Kubernetes Secrets (템플릿이 아닌 실제 값이 들어간 파일)
 k8s/delivery/templates/*/secret.yaml
