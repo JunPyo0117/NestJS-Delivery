@@ -4,9 +4,11 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { UserMicroservice } from '@app/common';
 import { join } from 'path';
 import { ConfigService } from '@nestjs/config';
+import { GrpcExceptionFilter } from './grpc-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.useGlobalFilters(new GrpcExceptionFilter());
   const configService = app.get(ConfigService);
 
   app.connectMicroservice<MicroserviceOptions>({

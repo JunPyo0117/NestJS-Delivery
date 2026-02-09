@@ -9,6 +9,7 @@ import Joi from 'joi';
 import { BearerTokenMiddleware } from './auth/middleware/bearer-token.middleware';
 import { join } from 'path';
 import { traceInterceptor } from '@app/common/grpc/interceptor';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { traceInterceptor } from '@app/common/grpc/interceptor';
     OrderModule,
     ProductModule,
     AuthModule,
+    HealthModule,
   ],
 })
 export class AppModule implements NestModule {

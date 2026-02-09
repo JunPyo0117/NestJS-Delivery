@@ -1,23 +1,11 @@
-import { Metadata } from '@grpc/grpc-js';
-import {
-  Body,
-  Controller,
-  Post,
-  UseInterceptors,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Body, Controller } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { CreateOrderDto } from '../dto/create-order.dto';
-import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
-import { GrpcInterceptor, OrderMicroservice, RpcInterceptor } from '@app/common';
-import { DeliveryStartedDto } from '../dto/delivery-started.dto';
+import { OrderMicroservice } from '@app/common';
 import { OrderStatus } from '../entity/order.entity';
 import { PaymentMethod } from '../entity/payment.entity';
 
 @Controller('order')
 @OrderMicroservice.OrderServiceControllerMethods()
-@UseInterceptors(GrpcInterceptor)
 export class OrderController
   implements OrderMicroservice.OrderServiceController
 {
@@ -39,21 +27,15 @@ export class OrderController
     request: OrderMicroservice.CreateOrderRequest,
     metadata: Metadata,
   ) {
-    if (!request.payment || !request.meta?.user || !request.address) {
-      throw new Error('meta.user, address, payment는 필수입니다.');
-    }
-    const payment = request.payment;
-    return (await this.orderService.createOrder(
+    return this.orderService.createOrder(
       {
         ...request,
-        meta: { user: request.meta.user },
-        address: request.address,
         payment: {
-          ...payment,
-          paymentMethod: payment.paymentMethod as PaymentMethod,
-        } as any,
+          ...request.payment,
+          paymentMethod: request.payment.paymentMethod as PaymentMethod,
+        },
       },
       metadata,
-    )) as any;
+    );
   }
 }

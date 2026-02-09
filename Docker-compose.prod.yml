@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  gateway:
+    image: vksehfkdydy/fc-nestjs-gateway:latest
+    env_file:
+      - ./apps/gateway/.prod.env
+    ports:
+      - 3000:3000
+
+  user:
+    image: vksehfkdydy/fc-nestjs-user:latest
+    env_file:
+      - ./apps/user/.prod.env
+    working_dir: /usr/src/app
+
+  product:
+    image: vksehfkdydy/fc-nestjs-product:latest
+    env_file:
+      - ./apps/product/.prod.env
+
+  order:
+      image: vksehfkdydy/fc-nestjs-order:latest
+      env_file:
+        - ./apps/order/.prod.env
+
+  payment:
+    image: vksehfkdydy/fc-nestjs-payment:latest
+    env_file:
+      - ./apps/payment/.prod.env
+
+  notification:
+    image: vksehfkdydy/fc-nestjs-notification:latest
+    env_file:
+      - ./apps/notification/.prod.env

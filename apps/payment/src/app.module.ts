@@ -23,6 +23,11 @@ import { traceInterceptor } from '@app/common';
         url: configService.getOrThrow('DB_URL'),
         autoLoadEntities: true,
         synchronize: true,
+        ...(configService.get('NODE_ENV') === 'production' && {
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        }),
       }),
       inject: [ConfigService],
     }),
