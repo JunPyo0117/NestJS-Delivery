@@ -1,15 +1,21 @@
+import { Inject, Injectable } from '@nestjs/common';
 import { OrderEntity } from '../domain/order.entity';
-import { OrderOutputPort } from '../port/output/order.output-port';
-import { PaymentOutputPort } from '../port/output/payment.output-port';
-import { ProductOutputPort } from '../port/output/product.output-port';
-import { UserOutputPort } from '../port/output/user.output-port';
+import type { OrderOutputPort } from '../port/output/order.output-port';
+import type { PaymentOutputPort } from '../port/output/payment.output-port';
+import type { ProductOutputPort } from '../port/output/product.output-port';
+import type { UserOutputPort } from '../port/output/user.output-port';
 import { CreateOrderDto } from './dto/create-order.dto';
 
+@Injectable()
 export class CreateOrderUsecase {
   constructor(
+    @Inject('UserOutputPort')
     private readonly userOutputPort: UserOutputPort,
+    @Inject('ProductOutputPort')
     private readonly productOutputPort: ProductOutputPort,
+    @Inject('OrderOutputPort')
     private readonly orderOutputPort: OrderOutputPort,
+    @Inject('PaymentOutputPort')
     private readonly paymentOutputPort: PaymentOutputPort,
   ) {}
 
@@ -50,7 +56,7 @@ export class CreateOrderUsecase {
       await this.orderOutputPort.updateOrder(order);
 
       return order;
-    } catch (error) {
+    } catch {
       // 9. 만약에 7번 이후의 프로세스가 실패하면 주문을 취소한다 - Order
       order.cancelOrder();
       await this.orderOutputPort.updateOrder(order);

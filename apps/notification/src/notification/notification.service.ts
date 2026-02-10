@@ -1,6 +1,5 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { SendPaymentNotificationDto } from './dto/send-payment-notification.dto';
-import { Repository } from 'typeorm';
 import { Notification, NotificationStatus } from './entity/notification.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -45,8 +44,10 @@ export class NotificationService implements OnModuleInit {
       NotificationStatus.sent,
     );
 
-    // Cold Observable vs Hot Observable
-    this.sendDeliveryStartedMessage(data.orderId, metadata);
+    // Payment 응답 체인을 막지 않기 위해 비동기로 재시도한다.
+    setTimeout(() => {
+      this.sendDeliveryStartedMessage(data.orderId, metadata);
+    }, 300);
 
     return this.notificationModel.findById(notification._id).lean();
   }
@@ -61,7 +62,15 @@ export class NotificationService implements OnModuleInit {
           metadata,
         ),
       )
-      .subscribe();
+      .subscribe({
+        next: (response) => {
+          console.log('배송 시작 알림 성공:', response);
+        },
+        error: (error: Error) => {
+          console.error('배송 시작 알림 실패:', error.message);
+          // 에러가 발생해도 서비스는 계속 동작
+        },
+      });
   }
 
   async updateNotificationStatus(id: string, status: NotificationStatus) {

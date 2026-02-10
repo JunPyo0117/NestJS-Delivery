@@ -4,13 +4,13 @@ export enum PaymentMethod {
 }
 
 export class PaymentEntity {
-  patmentId: string;
+  paymentId: string;
   paymentMethod: string;
   paymentName: string;
   amount: number;
 
   constructor(param: PaymentEntity) {
-    this.patmentId = param.patmentId;
+    this.paymentId = param.paymentId;
     this.paymentMethod = param.paymentMethod;
     this.paymentName = param.paymentName;
     this.amount = param.amount;
