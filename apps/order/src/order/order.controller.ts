@@ -1,9 +1,9 @@
 import { Controller, UseInterceptors } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { CreateOrderDto } from '../dto/create-order.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
 import { GrpcInterceptor, OrderMicroservice } from '@app/common';
-import { OrderStatus } from '../entity/order.entity';
-import { PaymentMethod } from '../entity/payment.entity';
+import { OrderStatus } from './entity/order.entity';
+import { PaymentMethod } from './entity/payment.entity';
 import { Metadata } from '@grpc/grpc-js';
 
 @Controller('order')

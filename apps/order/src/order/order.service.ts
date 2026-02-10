@@ -1,5 +1,5 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { CreateOrderDto } from '../dto/create-order.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
 import type { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { Metadata } from '@grpc/grpc-js';
@@ -12,16 +12,16 @@ import {
   UserMicroservice,
   constructorMetadata,
 } from '@app/common';
-import { PaymentCanclledException } from '../exception/payment-canclled.exception';
-import { Product } from '../entity/product.entity';
-import { Customer } from '../entity/customer.entity';
-import { AddressDto } from '../dto/address.dto';
-import { Payment } from '../entity/payment.entity';
+import { PaymentCanclledException } from './exception/payment-canclled.exception';
+import { Product } from './entity/product.entity';
+import { Customer } from './entity/customer.entity';
+import { AddressDto } from './dto/address.dto';
+import { Payment } from './entity/payment.entity';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { Order, OrderStatus } from '../entity/order.entity';
-import { PaymentDto } from '../dto/payment.dto';
-import { PaymentFailedException } from '../exception/payment-failed.exception';
+import { Order, OrderStatus } from './entity/order.entity';
+import { PaymentDto } from './dto/payment.dto';
+import { PaymentFailedException } from './exception/payment-failed.exception';
 
 @Injectable()
 export class OrderService implements OnModuleInit {
