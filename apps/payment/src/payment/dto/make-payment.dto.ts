@@ -1,40 +1,40 @@
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
-import { PaymentMethod } from "../entity/payment.entity";
+// import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+// import { PaymentMethod } from '../adaptor/output/typeorm/entity/payment.entity';
 
-export class MakePaymentDto {
-  @IsString()
-  @IsNotEmpty()
-  orderId: string;
-  
-  @IsString()
-  @IsNotEmpty()
-  paymentMethod: PaymentMethod;
+// export class MakePaymentDto {
+//   @IsString()
+//   @IsNotEmpty()
+//   orderId: string;
 
-  @IsString()
-  @IsNotEmpty()
-  paymentName: string;
+//   @IsString()
+//   @IsNotEmpty()
+//   paymentMethod: PaymentMethod;
 
-  @IsNotEmpty()
-  @IsString()
-  cardNumber: string;
+//   @IsString()
+//   @IsNotEmpty()
+//   paymentName: string;
 
-  @IsString()
-  @IsNotEmpty()
-  expiryYear: string;
+//   @IsNotEmpty()
+//   @IsString()
+//   cardNumber: string;
 
-  @IsString()
-  @IsNotEmpty()
-  expiryMonth: string;
-  
-  @IsString()
-  @IsNotEmpty()
-  birthOrRegistration: string;
+//   @IsString()
+//   @IsNotEmpty()
+//   expiryYear: string;
 
-  @IsNumber()
-  @IsNotEmpty()
-  amount: number;
+//   @IsString()
+//   @IsNotEmpty()
+//   expiryMonth: string;
 
-  @IsString()
-  @IsNotEmpty()
-  userEmail: string;
-}   
+//   @IsString()
+//   @IsNotEmpty()
+//   birthOrRegistration: string;
+
+//   @IsNumber()
+//   @IsNotEmpty()
+//   amount: number;
+
+//   @IsString()
+//   @IsNotEmpty()
+//   userEmail: string;
+// }

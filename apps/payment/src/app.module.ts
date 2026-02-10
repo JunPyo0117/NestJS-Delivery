@@ -7,6 +7,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { NOTIFICATION_SERVICE, NotificationMicroservice } from '@app/common';
 import { join } from 'path';
 import { traceInterceptor } from '@app/common';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
@@ -28,6 +29,12 @@ import { traceInterceptor } from '@app/common';
             rejectUnauthorized: false,
           },
         }),
+      }),
+      inject: [ConfigService],
+    }),
+    MongooseModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.getOrThrow('MONGO_DB_URL'),
       }),
       inject: [ConfigService],
     }),

@@ -125,6 +125,23 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+
+  mongo_payment:
+    image: mongo:8
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+    ports:
+      - 6010:27017
+    volumes:
+      - ./mongo/payment:/data/db
+    command: mongod --quiet --logpath /dev/null
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh 'mongodb://mongo:mongo@localhost:27017/admin' --eval 'quit(db.runCommand({ping:1}).ok ? 0 : 2)'"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 15s
     
   postgres_payment:
     image: postgres:16
