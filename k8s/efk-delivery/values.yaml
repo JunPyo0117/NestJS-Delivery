@@ -1,0 +1,23 @@
+gateway:
+  replicas: 1
+
+notification:
+  replicas: 1
+  db_url: "mongodb+srv://test:test@nestjsmongo.napy1ae.mongodb.net/notification?appName=NestJSMongo"
+
+order:
+  replicas: 1
+  db_url: "mongodb+srv://test:test@nestjsmongo.napy1ae.mongodb.net/order?appName=NestJSMongo"
+
+payment:
+  replicas: 1
+  db_url: "postgres://postgres:postgres@nestjs-myapp-db2.cvuok60y0zyf.ap-northeast-2.rds.amazonaws.com/payment"
+  mongo_db_url: "mongodb+srv://test:test@nestjsmongo.napy1ae.mongodb.net/payment?appName=NestJSMongo"
+
+product:
+  replicas: 1
+  db_url: "postgres://postgres:postgres@nestjs-myapp-db2.cvuok60y0zyf.ap-northeast-2.rds.amazonaws.com/product"
+
+user:
+  replicas: 1
+  db_url: "postgres://postgres:postgres@nestjs-myapp-db2.cvuok60y0zyf.ap-northeast-2.rds.amazonaws.com/user"

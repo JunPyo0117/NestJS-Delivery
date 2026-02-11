@@ -23,8 +23,8 @@ import { MongooseAdapter } from './adaptor/output/mongoose/mongoose.adapter';
     PaymentService,
     {
       provide: 'DatabaseOutputPort',
-      useClass: TypeormAdapter,
-      // useClass: MongooseAdapter,
+      // useClass: TypeormAdapter,
+      useClass: MongooseAdapter,
     },
     {
       provide: 'PaymentOutputPort',
