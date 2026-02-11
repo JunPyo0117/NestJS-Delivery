@@ -1,98 +1,112 @@
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+  <h1>배달 서비스 마이크로서비스 프로젝트 (Delivery App MSA)</h1>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+안녕하세요! 이 프로젝트는 **NestJS**를 기반으로 구축된 **마이크로서비스 아키텍처(MSA) 배달 애플리케이션**입니다.  
+모노레포(Monorepo) 구조를 채택하여 여러 서비스와 공통 라이브러리를 효율적으로 관리하고 있으며, 실제 배달 서비스의 핵심 기능들을 마이크로서비스로 분리하여 구현했습니다.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+남들이 봐도 쉽게 이해할 수 있도록 프로젝트 구조와 실행 방법을 정리해 두었습니다. 😊
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🏗️ 프로젝트 아키텍처 및 구조
 
-## Project setup
+이 프로젝트는 **pnpm** 워크스페이스를 사용하는 **NestJS Monorepo**입니다.  
+각 기능은 독립적인 마이크로서비스로 나뉘어 있으며, **Docker**를 통해 컨테이너 환경에서 실행됩니다.
+
+### 📂 디렉토리 구조 (Directory Structure)
+
+프로젝트의 전체적인 구조는 다음과 같습니다.
+
+```
+delivery/
+├── apps/                   # 개별 마이크로서비스 (Microservices)
+│   ├── gateway/            # API Gateway (Port: 3000) - 외부 요청 진입점
+│   ├── user/               # 사용자 관리 서비스 (DB: Postgres)
+│   ├── product/            # 상품 관리 서비스 (DB: Postgres)
+│   ├── order/              # 주문 관리 서비스 (DB: Mongo)
+│   ├── payment/            # 결제 관리 서비스 (DB: Postgres, Mongo)
+│   └── notification/       # 알림 서비스 (DB: Mongo)
+├── libs/                   # 공통 라이브러리 (Shared Libraries)
+│   └── common/             # 모든 앱에서 공유하는 모듈 (DTO, DB, Auth, Git)
+├── docker-compose.yml      # 로컬 개발 환경 실행을 위한 Docker 구성 파일
+├── nest-cli.json           # NestJS Monorepo 설정 파일
+├── package.json            # 프로젝트 의존성 및 스크립트 관리
+└── pnpm-lock.yaml          # 패키지 버전 잠금 파일
+```
+
+#### `apps/` (마이크로서비스 상세)
+각 서비스는 독립적인 **NestJS 애플리케이션**으로 구성되어 있으며, 도커 컨테이너로 개별 실행됩니다.
+
+| 서비스명 | 포트 | 데이터베이스 | 주요 역할 |
+| :--- | :--- | :--- | :--- |
+| **Gateway** | 3000 | - | 클라이언트 요청 라우팅, 인증(Authentication) 위임 |
+| **User** | - | PostgreSQL | 회원가입, 로그인, 유저 정보 관리 (TCP 통신) |
+| **Product** | - | PostgreSQL | 상품 등록/수정/삭제, 재고 관리 |
+| **Order** | - | MongoDB | 주문 생성, 상태 변경, 주문 내역 조회 |
+| **Payment** | - | Postgres, Mongo | 결제 승인/취소, 결제 내역 관리 (CQRS 패턴 고려) |
+| **Notification** | - | MongoDB | 이메일/Push 알림 전송, 알림 기록 저장 |
+
+> **참고**: Gateway를 제외한 마이크로서비스들은 외부로 포트를 노출하지 않고, **TCP** 또는 **Message Queue**를 통해 내부 통신을 수행합니다. (Docker Network 내부 통신)
+
+#### `libs/` (공유 라이브러리)
+중복 코드를 방지하기 위해 공통 기능을 라이브러리로 분리했습니다.
+- **`common`**:
+  - `database`: 데이터베이스 연결 모듈 (AbstractMongoose, AbstractTypeOrm 등)
+  - `auth`: JWT 인증 가드 및 전략 (Strategies)
+  - `rmq`: RabbitMQ 메시지 큐 통신 모듈 (필요 시)
+  - `logger`: 공통 로깅 모듈
+
+
+---
+
+## 🛠️ 기술 스택 (Tech Stack)
+
+- **Framework**: [NestJS](https://nestjs.com/) (Node.js)
+- **Language**: TypeScript
+- **Package Manager**: [pnpm](https://pnpm.io/)
+- **Database**: 
+  - PostgreSQL (User, Product, Payment)
+  - MongoDB (Order, Payment, Notification)
+- **Infrastructure**: Docker, Docker Compose
+
+---
+
+## 🚀 시작하기 (Getting Started)
+
+로컬 환경에서 프로젝트를 실행하는 방법입니다.
+
+### 1. 사전 준비 (Prerequisites)
+- Node.js 설치
+- pnpm 설치 (`npm install -g pnpm`)
+- Docker 및 Docker Compose 설치
+
+### 2. 의존성 설치 (Install Dependencies)
+프로젝트 루트에서 다음 명령어를 실행하여 모든 의존성을 설치합니다.
 
 ```bash
 $ pnpm install
 ```
-
-## Compile and run the project
-
+### 3. 로컬 환경 실행 (Run Locally)
+Docker Compose를 사용하여 모든 서비스와 데이터베이스를 한 번에 실행할 수 있습니다.
 ```bash
-# development
-$ pnpm run start
+$ docker-compose up --build
+```
+이 명령어는 필요한 DB 컨테이너(Postgres, Mongo)와 각 애플리케이션 컨테이너를 빌드하고 실행합니다.
 
-# watch mode
-$ pnpm run start:dev
+각 서비스를 개별적으로 개발 모드로 실행하고 싶다면:
+```bash
+# Gateway 서비스 실행 예시
+$ pnpm start:dev gateway
 
-# production mode
-$ pnpm run start:prod
+# User 서비스 실행 예시
+$ pnpm start:dev user
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ pnpm run test
+## 📝 참고 사항
 
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- `payment-command`와 `payment-query` 폴더는 CQRS 패턴 적용을 위한 구조로 보이나, 현재 메인 설정(`nest-cli.json`)에는 `payment` 단일 서비스로 구성되어 있습니다.
+- 개발 중 궁금한 점이나 이슈가 있다면 언제든 공유해 주세요!
