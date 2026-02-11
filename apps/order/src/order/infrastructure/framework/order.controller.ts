@@ -4,10 +4,11 @@ import { Metadata } from '@grpc/grpc-js';
 import { CreateOrderUsecase } from '../../usecase/create-order.usecase';
 import { StartDeliveryUsecase } from '../../usecase/start-delivery.usecase';
 import { CreateOrderRequestMapper } from './mapper/create-order-request.mapper';
+import { EventPattern } from '@nestjs/microservices';
+import { CancelOrderUsecase } from '../../usecase/cancel-order.usecase';
 
 @Controller('order')
 @OrderMicroservice.OrderServiceControllerMethods()
-@UseInterceptors(GrpcInterceptor)
 export class OrderController
   implements OrderMicroservice.OrderServiceController
 {
@@ -15,12 +16,15 @@ export class OrderController
     // private readonly orderService: OrderService,
     private readonly createOrderUsecase: CreateOrderUsecase,
     private readonly startDeliveryUsecase: StartDeliveryUsecase,
+    private readonly cancelOrderUsecase: CancelOrderUsecase,
   ) {}
 
+  @UseInterceptors(GrpcInterceptor)
   async deliveryStarted(request: OrderMicroservice.DeliveryStartedRequest) {
     await this.startDeliveryUsecase.execute(request.id);
   }
 
+  @UseInterceptors(GrpcInterceptor)
   async createOrder(
     request: OrderMicroservice.CreateOrderRequest,
     metadata: Metadata,
@@ -28,5 +32,10 @@ export class OrderController
     return this.createOrderUsecase.execute(
       new CreateOrderRequestMapper(request).toDomain(),
     );
+  }
+
+  @EventPattern('order.notification.failed')
+  async orderNotificationFailed(orderId: string) {
+    await this.cancelOrderUsecase.execute(orderId);
   }
 }

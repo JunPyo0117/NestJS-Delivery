@@ -1,4 +1,9 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { SendPaymentNotificationDto } from './dto/send-payment-notification.dto';
 import { Notification, NotificationStatus } from './entity/notification.entity';
 import { InjectModel } from '@nestjs/mongoose';
@@ -8,11 +13,11 @@ import {
   OrderMicroservice,
   constructorMetadata,
 } from '@app/common';
-import type { ClientGrpc } from '@nestjs/microservices';
+import type { ClientGrpc, ClientKafka } from '@nestjs/microservices';
 import { Metadata } from '@grpc/grpc-js';
 
 @Injectable()
-export class NotificationService implements OnModuleInit {
+export class NotificationService implements OnModuleInit, OnModuleDestroy {
   orderService: OrderMicroservice.OrderServiceClient;
 
   constructor(
@@ -22,13 +27,20 @@ export class NotificationService implements OnModuleInit {
     // private readonly orderService: ClientProxy,
     @Inject(ORDER_SERVICE)
     private readonly orderMicroservice: ClientGrpc,
+    @Inject('KAFKA_SERVICE')
+    private readonly kafkaService: ClientKafka,
   ) {}
 
-  onModuleInit() {
+  async onModuleDestroy() {
+    await this.kafkaService.close();
+  }
+
+  async onModuleInit() {
     this.orderService =
       this.orderMicroservice.getService<OrderMicroservice.OrderServiceClient>(
         'OrderService',
       );
+    await this.kafkaService.connect();
   }
 
   async sendPaymentNotification(
@@ -37,19 +49,26 @@ export class NotificationService implements OnModuleInit {
   ) {
     const notification = await this.createNotification(data.to);
 
-    await this.sendEmail();
+    try {
+      throw new Error('에러 test');
 
-    await this.updateNotificationStatus(
-      notification._id.toString(),
-      NotificationStatus.sent,
-    );
+      await this.sendEmail();
 
-    // Payment 응답 체인을 막지 않기 위해 비동기로 재시도한다.
-    setTimeout(() => {
-      this.sendDeliveryStartedMessage(data.orderId, metadata);
-    }, 300);
+      await this.updateNotificationStatus(
+        notification._id.toString(),
+        NotificationStatus.sent,
+      );
 
-    return this.notificationModel.findById(notification._id).lean();
+      // Payment 응답 체인을 막지 않기 위해 비동기로 재시도한다.
+      setTimeout(() => {
+        this.sendDeliveryStartedMessage(data.orderId, metadata);
+      }, 300);
+
+      return this.notificationModel.findById(notification._id).lean();
+    } catch (e) {
+      this.kafkaService.emit('order.notification.failed', data.orderId);
+      return this.notificationModel.findById(notification._id).lean();
+    }
   }
 
   sendDeliveryStartedMessage(id: string, metadata: Metadata) {
