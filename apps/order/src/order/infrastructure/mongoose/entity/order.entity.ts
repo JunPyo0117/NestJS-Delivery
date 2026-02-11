@@ -10,7 +10,7 @@ import { Document, ObjectId } from 'mongoose';
 
 export enum OrderStatus {
   pending = 'Pending',
-  paymentCanclled = 'PaymentCanclled',
+  paymentCancelled = 'PaymentCancelled',
   paymentFailed = 'PaymentFailed',
   paymentProcessed = 'PaymentProcessed',
   deliveryStarted = 'DeliveryStarted',

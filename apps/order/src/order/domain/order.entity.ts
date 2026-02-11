@@ -5,7 +5,7 @@ import { ProductEntity } from './product.entity';
 
 export enum OrderStatus {
   pending = 'Pending',
-  paymentCanclled = 'PaymentCanclled',
+  paymentCancelled = 'PaymentCancelled',
   paymentFailed = 'PaymentFailed',
   paymentProcessed = 'PaymentProcessed',
   deliveryStarted = 'DeliveryStarted',
@@ -90,7 +90,7 @@ export class OrderEntity {
       throw new Error('ID가 없는 주문에 주문을 취소할 수 없습니다.');
     }
 
-    this.status = OrderStatus.paymentCanclled;
+    this.status = OrderStatus.paymentCancelled;
   }
 
   startDelivery() {

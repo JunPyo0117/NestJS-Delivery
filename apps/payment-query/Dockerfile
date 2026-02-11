@@ -12,12 +12,12 @@ RUN npm install -g pnpm
 RUN pnpm install
 
 # COPY . .
-COPY apps/payment apps/payment
+COPY apps/payment-query apps/payment-query
 COPY libs libs
 
-RUN pnpm build payment
+RUN pnpm build payment-query
 
-CMD ["pnpm", "start:dev", "payment"]
+CMD ["pnpm", "start:dev", "payment-query"]
 
 FROM node:alpine AS production
 
@@ -37,4 +37,4 @@ RUN pnpm install --prod
 COPY --from=development /usr/src/app/dist ./dist
 COPY proto proto
 
-CMD ["node", "dist/apps/payment/main"]
+CMD ["node", "dist/apps/payment-query/main"]

@@ -12,7 +12,7 @@
 //   UserMicroservice,
 //   constructorMetadata,
 // } from '@app/common';
-// import { PaymentCanclledException } from './exception/payment-canclled.exception';
+// import { PaymentCancelledException } from './exception/payment-cancelled.exception';
 // import { Product } from './infrastructure/mongoose/entity/product.entity';
 // import { Customer } from './infrastructure/mongoose/entity/customer.entity';
 // import { AddressDto } from './dto/address.dto';
@@ -103,7 +103,7 @@
 //     // );
 
 //     // if (tResp.status === 'error') {
-//     //   throw new PaymentCanclledException(tResp);
+//     //   throw new PaymentCancelledException(tResp);
 //     // }
 
 //     // // 2. User MS: 사용자 정보 가져오기
@@ -143,7 +143,7 @@
 
 //   private validatePaymentAmount(totalA: number, totalB: number) {
 //     if (totalA !== totalB) {
-//       throw new PaymentCanclledException('결제 금액이 올바르지 않습니다.');
+//       throw new PaymentCancelledException('결제 금액이 올바르지 않습니다.');
 //     }
 //   }
 
