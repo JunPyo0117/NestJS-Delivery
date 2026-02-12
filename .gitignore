@@ -104,3 +104,4 @@ tutorial/kubernetes/5_config/secret.yml
 **/values.prod.yaml
 **/values.production.yaml
 helm/**/values.yaml
+O이력서
